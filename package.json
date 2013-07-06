@@ -1,0 +1,23 @@
+{
+  "name": "static-jade-brunch2",
+  "version": "1.6.0",
+  "description": "Adds Static-HTML Jade support to brunch.",
+  "author": "Paul Miller (http://paulmillr.com/)",
+  "homepage": "https://github.com/ttab/static-jade-brunch2",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ttab/static-jade-brunch.git2"
+  },
+  "main": "./lib/index",
+  "scripts": {
+    "prepublish": "rm -rf lib && coffee --bare --output lib/ src/",
+    "test": "node_modules/.bin/mocha --require test/common.js"
+  },
+  "dependencies": {
+    "jade": "0.31.x"
+  },
+  "devDependencies": {
+    "mocha": "1.11.0",
+    "chai": "1.7.0"
+  }
+}
