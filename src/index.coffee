@@ -1,6 +1,9 @@
 jade = require 'jade'
 sysPath = require 'path'
 fs = require 'fs'
+umd = require 'umd-wrapper'
+
+require '../vendor/runtime.js'
 
 module.exports = class JadeCompiler
   brunchPlugin: yes
@@ -14,19 +17,19 @@ module.exports = class JadeCompiler
   compile: (data, path, callback) ->
     isClient = data.indexOf('//- client=true -//') >= 0
     try
-      content = jade.compile data,
+      compiled = jade.compile data,
         compileDebug: no,
         client: yes,
         filename: path,
         path: @config.paths.app,
         pretty: !!@config.plugins?.jade?.pretty
       if isClient
-        result = "module.exports = #{content};"
+        result = umd compiled
       else
         [_, bit] = path.match /.*\/(.*)\.jade/
         outputTo = @config.paths.public + '/' + bit + '.html'
         result = null
-        output = content({})
+        output = compiled({})
         writeFile outputTo, output, (err) -> console.error err if err
     catch err
       error = err

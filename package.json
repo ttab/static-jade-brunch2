@@ -14,7 +14,8 @@
     "test": "node_modules/.bin/mocha --require test/common.js"
   },
   "dependencies": {
-    "jade": "0.31.x"
+    "jade": "0.33.x",
+    "umd-wrapper": "~0.1.0"
   },
   "devDependencies": {
     "mocha": "1.11.0",

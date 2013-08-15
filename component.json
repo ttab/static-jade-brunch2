@@ -1,0 +1,17 @@
+{
+  "name": "static-jade-brunch2",
+  "repo": "ttab/static-jade-brunch2",
+  "version": "1.6.0",
+  "description": "Adds Static-HTML Jade support to brunch.",
+  "main": "vendor/runtime.js",
+  "ignore": [
+    "lib",
+    "src",
+    "test"
+  ],
+  "dependencies": {
+  },
+  "scripts": [
+    "vendor/runtime.js"
+  ]
+}
