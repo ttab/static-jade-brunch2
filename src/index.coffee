@@ -26,8 +26,10 @@ module.exports = class JadeCompiler
       if isClient
         result = umd compiled
       else
-        [_, bit] = path.match /.*\/(.*)\.jade/
-        outputTo = @config.paths.public + '/' + bit + '.html'
+        bit = do => for wpath in @config.paths.watched
+            return path.substring wpath.length if path.indexOf(wpath + '/') == 0
+        bit = bit.replace '.jade', '.html'
+        outputTo = @config.paths.public + bit
         result = null
         output = compiled({})
         writeFile outputTo, output, (err) -> console.error err if err
@@ -70,7 +72,10 @@ mkdirp = (path) ->
     return if path == '.'
     parent = sysPath.dirname path
     mkdirp parent
-    fs.mkdirSync path, '0755'
+    try
+        fs.mkdirSync path, '0755'
+    catch err
+        throw err if err.code != 'EEXIST'
 
 writeFile = (path, data, callback) ->
   write = (callback) -> fs.writeFile path, data, callback
