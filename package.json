@@ -1,8 +1,9 @@
 {
   "name": "static-jade-brunch2",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Adds Static-HTML Jade support to brunch.",
   "homepage": "https://github.com/ttab/static-jade-brunch2",
+  "author": "Original author Paul Miller, fork by Martin Algesten",
   "repository": {
     "type": "git",
     "url": "git@github.com:ttab/static-jade-brunch.git2"
