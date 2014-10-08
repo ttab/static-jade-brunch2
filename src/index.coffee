@@ -15,28 +15,44 @@ module.exports = class JadeCompiler
     return
 
   compile: (data, path, callback) ->
+    try
+        modelPath = "#{process.cwd()}/#{path}.coffee"
+        delete require.cache[modelPath]
+        model = require modelPath
+    catch e
+        if e.code == 'MODULE_NOT_FOUND' and e.message.indexOf(modelPath) >= 0
+            # that's ok
+        else
+            return callback e
     isClient = data.indexOf('//- client=true -//') >= 0
     try
-      compiled = jade.compile data,
-        compileDebug: no,
-        client: yes,
-        filename: path,
-        path: @config.paths.app,
-        pretty: !!@config.plugins?.jade?.pretty
-      if isClient
-        result = umd compiled
-      else
-        bit = do => for wpath in @config.paths.watched
-            return path.substring wpath.length if path.indexOf(wpath + '/') == 0
-        bit = bit.replace '.jade', '.html'
-        outputTo = @config.paths.public + bit
-        result = null
-        output = compiled({})
-        writeFile outputTo, output, (err) -> console.error err if err
+        compiled = jade.compile data,
+            compileDebug: no,
+            client: yes,
+            filename: path,
+            path: @config.paths.app,
+            pretty: !!@config.plugins?.jade?.pretty
+        if isClient
+            result = umd compiled
+            return callback null, result
+        else
+            bit = do => for wpath in @config.paths.watched
+                return path.substring wpath.length if path.indexOf(wpath + '/') == 0
+            bit = bit.replace '.jade', '.html'
+            outputTo = @config.paths.public + bit
+            doWrite = (err, m) ->
+                if err
+                    return callback err
+                else
+                    try
+                        output = compiled m
+                        writeFile outputTo, output, (err) ->
+                            callback err, umd -> output
+                    catch oerr
+                        return callback oerr
+            if model then model doWrite else doWrite null, {}
     catch err
-      error = err
-    finally
-      callback error, result
+        callback err
 
   # Add '../node_modules/jade/jade.js' to vendor files.
   include: [
@@ -65,6 +81,12 @@ module.exports = class JadeCompiler
           sysPath.join @config.paths.root, path[1..]
         else
           sysPath.join parent, path
+
+    # add modelPath as dep
+    modelPath = "#{path}.coffee"
+    if fs.existsSync "#{process.cwd()}/#{modelPath}"
+        dependencies.push modelPath
+
     process.nextTick =>
       callback null, dependencies
 
@@ -78,8 +100,7 @@ mkdirp = (path) ->
         throw err if err.code != 'EEXIST'
 
 writeFile = (path, data, callback) ->
-  write = (callback) -> fs.writeFile path, data, callback
-  write (error) ->
+  fs.writeFile path, data, (error) ->
     return callback null, path, data unless error?
     mkdirp (sysPath.dirname path)
     write (error) ->
