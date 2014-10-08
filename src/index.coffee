@@ -100,7 +100,8 @@ mkdirp = (path) ->
         throw err if err.code != 'EEXIST'
 
 writeFile = (path, data, callback) ->
-  fs.writeFile path, data, (error) ->
+  write = (callback) -> fs.writeFile path, data, callback
+  write (error) ->
     return callback null, path, data unless error?
     mkdirp (sysPath.dirname path)
     write (error) ->
